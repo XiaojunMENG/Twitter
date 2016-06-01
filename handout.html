@@ -29,42 +29,8 @@
 
 			<hr>
 
-
-			<h2>Setup</h2>
-			<ul>
-                <li><a href="http://www.numpy.org/">NumPy</a>, <a href="http://scipy.org/">SciPy</a>, <a href="http://scikit-learn.org/">scikit-learn</a> and <a href="http://matplotlib.org/">matplotlib</a>. The department machines are already equipped with these packages so you can skip this step. If you are working on you own computer (a linux based machine), run the following commands to get the latest packages: 
-					<ul>
-						<li><code>pip install -U numpy</code></li>
-						<li><code>pip install -U scipy</code></li>
-						<li><code>pip install -U scikit-learn</code></li>
-						<li><code>pip install -U matplotlib</code></li>
-					</ul>
-				</li>
-				<li>
-					If you are working on the department machine, you should execute the following commands to update scikit-learn.:
-					<br>
-<pre>
-cd /course/cs1951a/lib/scikit-learn-0.14.1
-python setup.py install --user
-</pre>
-					The above command essentially puts the update into the following folder (~/.local/lib/python2.7/site-packages/sklearn) in your home directory and adds about 27 MB to your disk space. You can run the following commands in your python console to verify that the latest package is correctly installed.
-<pre>
->>> import sklearn
->>> sklearn.__version__
-'0.14.1'
-</pre>
-
-				</li>
-				<li>You will need to modify <code>tweet_sentiment_classifier.py</code></li>
-			</ul>
-
-
-			<hr>
-
-
 			<h2>Data</h2>
 			<p>
-				The <code>/course/cs1951a/pub/assignment3/data/</code> directory contains two csv files: <code>training.csv</code> and <code>test.csv</code>.
 				<pre>
 Data file format has 6 fields:
 <ol>
@@ -74,20 +40,20 @@ Data file format has 6 fields:
 <li>the query (lyx). If there is no query, then this value is NO_QUERY.</li>
 <li>the user that tweeted (robotickilldozr)</li>
 <li>the text of the tweet (Lyx is cool)</li></ol></pre>
-
-				You will be only using the polarity and the text of the tweet. You should examine these data sets before starting the assignment.<br><br>
-				Original data source: <a href="http://help.sentiment140.com/">Sentiment140</a>
 			</p>
 
 
 			<hr>
 
+			<h2></h2>
+			<p>
+			</p>
+
+
+			<hr>
 
 			<h2>Supervised Classifcation</h2>
 			<p>
-				Supervised learning is a task of predicting a label (class) for the given test input, using the learning model trained on the labeled training inputs. For this assignment, you will train your model on <code>training.csv</code> and test it on <code>test.csv</code>. Both csv files contain sentiment labels (either positive or negative) for tweets.<br>
-				As shown in <code>Figure 1</code>, during the training phase, the feature extractor is used to convert each input data to a feature set. Then, pairs of feature sets and labels are inputted into the machine learning algorithm to train a model. During the prediction phase, the same feature extractor is applied on the test data, and the extracted feature sets are inputted into the model to generate the predicted labels.<br>
-
 				<img src="supervised-classification.png" width="100%" height="75%"><a href="http://nltk.googlecode.com/svn/trunk/doc/book/ch06.html">Figure 1. (Image Source)</a></img>
 			</p>
 
