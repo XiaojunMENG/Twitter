@@ -6,18 +6,22 @@
     <title>Assignment 4: Visualization</title>
     
     <style>
+
 text.mono {
         font-size: 9pt;
         font-family: Consolas, courier;
 }
+
 .counties {
   fill: none;
 }
+
 .states {
   fill: none;
   stroke: #fff;
   stroke-linejoin: round;
 }
+
 .q0-9 { fill:rgb(220,220,220); } //gray
 .q1-9 { fill:rgb(247,251,255); } 
 .q2-9 { fill:rgb(222,235,247); }
@@ -28,6 +32,7 @@ text.mono {
 .q7-9 { fill:rgb(33,113,181); }
 .q8-9 { fill:rgb(8,81,156); }
 .q9-9 { fill:rgb(8,48,107); }
+
 </style>
 </head>
 
@@ -46,10 +51,14 @@ text.mono {
     <script src="http://d3js.org/queue.v1.min.js"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
     <script>
+
     var width = 960,
         height = 750;
+
     var rateById = d3.map();
+
     var rateByName=d3.map(); 
+
     var quantize= d3.scale.threshold()
     .domain([0.01, 0.4, 0.428, 0.457, 0.486, 0.514, 0.542, 0.571, 0.64])
     .range(d3.range(10).map(function(i) { return "q" + i + "-9"; }));
@@ -57,15 +66,19 @@ text.mono {
     var projection = d3.geo.albersUsa() //getsthe map
         .scale(1280)
         .translate([width / 2, height / 2]);
+
     var path = d3.geo.path()
         .projection(projection);
+
     var svg = d3.select("#gMap").append("svg")
         .attr("width", width)
         .attr("height", height);
+
     queue()
         .defer(d3.json, "us.json")
         .defer(d3.tsv, "county_sentiments.tsv", function(d) { rateById.set(d.id, +d.sent); rateByName.set(d.id, d.name);})
         .await(ready);
+
     function ready(error, us) {
       svg.append("g")
           .attr("class", "counties")
@@ -110,5 +123,6 @@ text.mono {
 
     <script src="http://d3js.org/d3.v3.min.js"></script>
 	<script>
+
 </body>
 </html>
