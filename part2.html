@@ -1,9 +1,9 @@
 <html>
 
 <head>
-    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assignment 4: Visualization</title>
+    <title>Geomapping Tweet Sentiment</title>
     
     <style>
 
@@ -42,15 +42,12 @@ text.mono {
         <div class="col-md-2"></div>
         <div class="col-md-8">
             <div class="page-header center">
-                <h1>Part 2: <small>Geomapping Tweet Sentiment</small></h1>
+                <h1>Geomapping Tweet Sentiment</h1>
             </div>
             
             <h2> Sentiment Visualization</h2>
 <div id="gMap"> </div>
-    <script src="http://d3js.org/d3.v3.min.js"></script>
-    <script src="http://d3js.org/queue.v1.min.js"></script>
-    <script src="http://d3js.org/topojson.v1.min.js"></script>
-    <script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
 
     var width = 960,
         height = 750;
@@ -108,13 +105,8 @@ text.mono {
             <li>Most Positive
 		      <ul>
 		    <li>County: Dickinson, 19095 Average sentiment score: 0.82</li>
-		    <li>Reason: <a href="http://www.dickinsoncountynews.com/story/2180300.html"> Maybe that's the reason.</a></li>
+		    <li>Reason: <a href="https://www.dickinsoncountynews.com/story/2180300.html"> Maybe that's the reason.</a></li>
 		      </ul></li>
-			</p>
-			
-			<h2>Factors affacting sentiment</h2>
-			<p>
-			Some guesses: Unemployment, income, weather...
 			</p>
 			
 
