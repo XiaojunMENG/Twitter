@@ -31,14 +31,12 @@
 			<h2>Data</h2>
 			<p>
 				<pre>
-Data file format has 6 fields:
+Important Data Fields:
 <ol>
-<li>the polarity of the tweet (0 = negative sentiment, 1 = positive sentiment)</li>
-<li>the id of the tweet (2087)</li>
-<li>the date of the tweet (Sat May 16 23:58:44 UTC 2009)</li>
-<li>the query (lyx). If there is no query, then this value is NO_QUERY.</li>
-<li>the user that tweeted (robotickilldozr)</li>
-<li>the text of the tweet (Lyx is cool)</li></ol></pre>
+<li>The polarity of the tweet (0 = negative sentiment, 1 = positive sentiment)</li>
+<li>The date and time of the tweet (Sat May 16 23:58:44 UTC 2009)</li>
+<li>The conty of the tweet(Providence)</li>
+<li>The text of the tweet (Lyx is cool)</li></ol></pre>
 			</p>
 
 
@@ -81,7 +79,14 @@ Data file format has 6 fields:
 <li>[False, True, True, False, False, False, True, True]</li></ol></pre>
 where each entry of the vectors refers to the existence of the corresponding entry in the vocabulary list. The first entry is only 'True' for the first tweet since in the vocabulary, 'i' only exists in the first tweet. Usually, if we had a longer document, we would define each entry of vectors to refer to the count of the corresponding entry in the dictionary. For example, the first tweet would be vectorized as <code>[1, 2, 2, 1, 1, 0, 0, 0]</code>. However, since tweet texts are very short (limited to 140 characters), having the boolean entries will suffice for our purpose.<br>
 </p>
+<hr>
 
+<h2>Resutls</h2>
+			<p>
+				>95% accuracy for all 3 machine learning methods.
+			</p>
+
+<hr>
 <h2>Geomapping Tweet Sentiment</h2>
 			<p>
 				<a href="https://rawgit.com/XiaojunMENG/Twitter/master/part2.html">Geomapping Tweet Sentiment</a>
