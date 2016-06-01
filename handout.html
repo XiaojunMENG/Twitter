@@ -1,0 +1,272 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment 3: Twitter Sentiment Classification</title>
+</head>
+
+<body>
+
+<div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <div class="page-header center">
+                <h1>Assignment 3 <small>Twitter Sentiment Classification</small></h1>
+            </div>
+
+			<h2>Brief</h2>
+			<p>
+				<ul>
+					<li>Due date: 11:59PM 03/18/2014</li>
+					<li>Stencil: /course/cs1951a/pub/assignment3/stencil.tgz</li>
+					<li>Data: /course/cs1951a/pub/assignment3/data/</li>
+					<li>Handin: cs1951a_handin assignment3</li>
+					<li>Required files: README, code/, html/, html/index.html</li>
+				</ul> 
+			</p>
+
+
+			<hr>
+
+
+			<h2>Overview</h2>
+			<p>
+				In this assignment, you will be performing <a href="http://en.wikipedia.org/wiki/Sentiment_analysis">sentiment analysis</a> on tweets using different machine learning techniques. You will learn how to extract features from data and build <a href="http://en.wikipedia.org/wiki/Supervised_learning">supervised learning</a> models to automatically classify tweets as either positive or negative (sentiment). Classifiers we will be examining are <a href="http://en.wikipedia.org/wiki/Naive_Bayes_classifier">Naive Bayes</a>, <a href="http://en.wikipedia.org/wiki/Logistic_regression">Logistic Regression</a>, and <a href="http://en.wikipedia.org/wiki/Support_vector_machine">Support Vector Machine</a>.
+			</p>
+
+
+			<hr>
+
+
+			<h2>Setup</h2>
+			<ul>
+                <li><a href="http://www.numpy.org/">NumPy</a>, <a href="http://scipy.org/">SciPy</a>, <a href="http://scikit-learn.org/">scikit-learn</a> and <a href="http://matplotlib.org/">matplotlib</a>. The department machines are already equipped with these packages so you can skip this step. If you are working on you own computer (a linux based machine), run the following commands to get the latest packages: 
+					<ul>
+						<li><code>pip install -U numpy</code></li>
+						<li><code>pip install -U scipy</code></li>
+						<li><code>pip install -U scikit-learn</code></li>
+						<li><code>pip install -U matplotlib</code></li>
+					</ul>
+				</li>
+				<li>
+					If you are working on the department machine, you should execute the following commands to update scikit-learn.:
+					<br>
+<pre>
+cd /course/cs1951a/lib/scikit-learn-0.14.1
+python setup.py install --user
+</pre>
+					The above command essentially puts the update into the following folder (~/.local/lib/python2.7/site-packages/sklearn) in your home directory and adds about 27 MB to your disk space. You can run the following commands in your python console to verify that the latest package is correctly installed.
+<pre>
+>>> import sklearn
+>>> sklearn.__version__
+'0.14.1'
+</pre>
+
+				</li>
+				<li>You will need to modify <code>tweet_sentiment_classifier.py</code></li>
+			</ul>
+
+
+			<hr>
+
+
+			<h2>Data</h2>
+			<p>
+				The <code>/course/cs1951a/pub/assignment3/data/</code> directory contains two csv files: <code>training.csv</code> and <code>test.csv</code>.
+				<pre>
+Data file format has 6 fields:
+<ol>
+<li>the polarity of the tweet (0 = negative sentiment, 1 = positive sentiment)</li>
+<li>the id of the tweet (2087)</li>
+<li>the date of the tweet (Sat May 16 23:58:44 UTC 2009)</li>
+<li>the query (lyx). If there is no query, then this value is NO_QUERY.</li>
+<li>the user that tweeted (robotickilldozr)</li>
+<li>the text of the tweet (Lyx is cool)</li></ol></pre>
+
+				You will be only using the polarity and the text of the tweet. You should examine these data sets before starting the assignment.<br><br>
+				Original data source: <a href="http://help.sentiment140.com/">Sentiment140</a>
+			</p>
+
+
+			<hr>
+
+
+			<h2>Supervised Classifcation</h2>
+			<p>
+				Supervised learning is a task of predicting a label (class) for the given test input, using the learning model trained on the labeled training inputs. For this assignment, you will train your model on <code>training.csv</code> and test it on <code>test.csv</code>. Both csv files contain sentiment labels (either positive or negative) for tweets.<br>
+				As shown in <code>Figure 1</code>, during the training phase, the feature extractor is used to convert each input data to a feature set. Then, pairs of feature sets and labels are inputted into the machine learning algorithm to train a model. During the prediction phase, the same feature extractor is applied on the test data, and the extracted feature sets are inputted into the model to generate the predicted labels.<br>
+
+				<img src="supervised-classification.png" width="100%" height="75%"><a href="http://nltk.googlecode.com/svn/trunk/doc/book/ch06.html">Figure 1. (Image Source)</a></img>
+			</p>
+
+
+			<hr>
+
+
+			<h2>Feature Extraction</h2>
+			<h3>Bag-of-words model</h3>
+			<p>
+				The <a href="http://en.wikipedia.org/wiki/Bag-of-words_model">bag-of-words model</a>, which is a <a href="http://en.wikipedia.org/wiki/Vector_space_model">vector-space representation</a> of documents that represents each document (tweet) as a vector of words, disregarding word order.<br>
+
+				<br>
+				Below is an example:<br>
+
+				Here are three documents, each document being one tweet.
+<pre>
+<ol><li>i love you and you love me</li>
+<li>you are my love</li>
+<li>my love for you</li></ol></pre>
+				
+				<br>
+				Based on these three documents, a <b>vocabulary list</b> is constructed as:
+<pre>
+<ul><li>'i'</li>
+<li>'love'</li>
+<li>'you'</li>
+<li>'and'</li>
+<li>'me'</li>
+<li>'are'</li>
+<li>'my'</li>
+<li>'for'</li></ul></pre>
+				which has 8 distinct words. And using the indices of the vocabulary list, each document is represented by an 8-entry vector:
+<pre>
+<ol><li>[True, True, True, True, True, False, False, False]</li>
+<li>[False, True, True, False, False, True, True, False]</li>
+<li>[False, True, True, False, False, False, True, True]</li></ol></pre>
+				where each entry of the vectors refers to the existence of the corresponding entry in the vocabulary list. The first entry is only 'True' for the first tweet since in the vocabulary, 'i' only exists in the first tweet. Usually, if we had a longer document, we would define each entry of vectors to refer to the count of the corresponding entry in the dictionary. For example, the first tweet would be vectorized as <code>[1, 2, 2, 1, 1, 0, 0, 0]</code>. However, since tweet texts are very short (limited to 140 characters), having the boolean entries will suffice for our purpose.<br>
+
+				<br>
+
+                You will need to use <a href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html">CountVectorizer</a> with a customized tokenizer to encode your feature vectors. In the stencil code, CountVectorizer is already intialized, you will call <code>fit_transform</code> on the list of training tweets to get the training features. This process will transform the list of tweets in to a matrix (each row corresponds to a document), and store the vocabulary list into <code>vectorizer</code>. In addition, you will need to transform the training labels (0 for negative and 1 for positive sentiment) to a <a href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html">numpy array</a> in order to feed into scikit machine learning models.<br>
+
+				<br>
+
+				The feature sets you extracted contain <a href="http://en.wikipedia.org/wiki/N-gram">unigram</a> features as each vocabulary in the feature space (the vocabulary list) is one word. You can experiment with other ngrams such as bigram (two-word feature) or trigram (three-word feature). For example, bigram features in the above tweets are 'i love', 'love you', 'you and', 'and you', 'you love', 'love me', 'you are' ... Your feature space can also be a combination of different ngrams. For instance, you can have both unigrams and bigrams in your vocabulary list. For simplicity, it will be sufficient to keep only unigrams in your feature space, but you are welcome to experiment with other ngrams.
+			</p>
+
+			<h3>Tweet Processing</h3>
+			<p>
+				Let's take look at two example tweets.
+<pre>
+<ul><li>I am SO exciteddddd for cs1951a! #browncs @cloudyminds cs.brown.edu/courses/csci1951-a/</li>
+<li>i am so excited @andy_pavlo</li></ul></pre>
+				In the above example, the feature space will contain some duplicate information for some features. For example, both 'I' and 'i' will be in the feature space as well as the pair of 'so' and 'SO', and the pair of 'excited' and 'exciteddddd'. In addition, both the singular and the plural forms of a word will exist in the feature space. These duplicates cause the feature space to explode. It would be a good idea to group similar words as a single feature and keep meaningful words. Here are some suggestions to process tweets before builiding your vocabulary list and extracting features:
+<pre>
+<ol><li>Lowercase all characters</li>
+<li>Apply <a href="http://en.wikipedia.org/wiki/Stemming">stemming</a> using <a href="http://tartarus.org/martin/PorterStemmer/">Porter Stemmer</a>. Please refer to the python implementation (porter_stemmer.py) as well as the example usage file (porter_stemmer_example.py).</li>
+<li>Strip punctuations</li>
+<li>Replace two or more occurrences of the same character with two occurrences. i.e. 'exciteddddd' to 'excitedd'</li>
+<li>Replace #xyz with xyz</li>
+<li>Replace a word contains www. or http(s):// with URL so that we can treat all the urls the same</li>
+<li>Replace a word contains @someuser with AT_USER so that we can treat all the users the same</li>
+<li>Ignore words that don't start with an alphabet</li>
+<li>Use the <a href="http://en.wikipedia.org/wiki/Stop_words">stop words list</a> to filter out low value words such as 'the', 'is' and 'on'.</li>
+<li>... and many more</li></ol></pre>
+				You are required to lowercase all characters, but you are free to experiment with other options. You probably want to use <a href="http://docs.python.org/2/library/re.html">regular expressions</a> to implement some of these options. You should pick the processing options that are reasonable and give you the best performance.
+			</p>
+
+			<hr>
+
+			<h2>Training</h2>
+			<p>
+				In this assignment, you will be experimenting with three classifiers: <a href="http://en.wikipedia.org/wiki/Naive_Bayes_classifier">Naive Bayes</a>, <a href="http://en.wikipedia.org/wiki/Logistic_regression">Logistic Regression</a>, and <a href="http://en.wikipedia.org/wiki/Support_vector_machine">Support Vector Machine</a>. You will use classifer modules from scikit. You will need to instantiate the appropriate classifier object (i.e. <code>classifier = BernoulliNB(binarize=None)</code>) and call the <code>fit</code> function of the classifier on the training features and training labels to train your model (i.e. <code>classifier.fit(training_features, training_labels)</code>). For details, you should look at the scikit documentation for each module.
+			</p>
+
+			<h3>Naive Bayes</h3>
+			<p>
+				<a href="http://en.wikipedia.org/wiki/Naive_Bayes_classifier">Naive Bayes</a> assumes that all features are independent from each other (in other words, each feature's weight is set independently), and uses the prior probability (i.e. what percentage of tweets are labeled as positive in the training set?) and the likelihood (i.e. what is the probability of seeing a word 'happy' in positive tweets?) to determine the posterior probability (i.e. if a tweet contains words 'happy', 'congratulations' and 'great', what is the probability of classifying this tweet as positive?) in order to classify the inputs. <a href="http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html">This</a> article has a good example of Multinomial Naive Bayes, which uses word counts as its features. Since our documents are very short (140 characters limitation), we will be using Bernoulli Naive Bayes, which uses boolean values for each feature.<br>
+
+				<br>
+
+				You will use <a href="http://scikit-learn.org/stable/modules/naive_bayes.html">Naive Bayes in scikit</a>, specifically <a href="http://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.BernoulliNB.html">Bernoulli Naive Bayes</a>. When instantiating the BernoulliNB model object, you will need to set <code>binarize</code> to None (i.e. <code>BernoulliNB(binarize=None)</code>).
+			</p>
+
+			<h3>Logistic Regression</h3>
+			<p>
+				<a href="http://en.wikipedia.org/wiki/Logistic_regression">Logistic Regression</a> essentially finds coefficients for the linear decision function. For example, it determines how much it will weigh a feature 'happy' when deciding the tweet is positive or negative. In contrast to Naive Bayes, whose feature weights are set independently, Logistic Regression sets all the weights together. Let's say there are two correlated features that are useful predictors. In this case, Naive Bayes will give both of them strong weights so those are double-counted, whereas Logistic Regression will compensate by weighting them lower.<br>
+
+				<br>
+
+				You will use <a href="http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html">Logistic Regression in scikit</a>. The default parameters should work fine, but you are welcome to experiment with other parameters.
+			</p>
+
+			<h3>Support Vector Machine (SVM)</h3>
+			<p>
+				In simple terms, <a href="http://en.wikipedia.org/wiki/Support_vector_machine">Support Vector Machine</a> finds the hyperplane (a line in 2D and a plane in a higher dimentional space) that best separates two classes of points with the maximum margin. For cases where two classes of data are not linearly separable, SVM performs a non-linear classification using the kernel trick, which maps inputs into high-dimensional feature spaces where linear separation may be possible. Linear SVM uses simple linear kernels and it has similar performance as Logistic Regression in most cases.<br>
+
+				<br>
+
+				You will use <a href="http://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html">Linear SVM</a> among <a href="http://scikit-learn.org/stable/modules/svm.html">scikit SVMs</a>. You are welcome to experiment with different SVMs with different kernels/parameters, but you might want to avoid <a href="http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html">SVC</a> as its underlying implementation does not scale with a large set of data.
+			</p>
+
+
+			<hr>
+
+
+			<h2>Validation</h2>
+			<p>
+				Once the model is trained, you need to see how it performs. You can first call the <code>score</code> function of the classifier on the training set (i.e. <code>classifier.score(training_features, training_labels)</code>) to check if the model gives you reasonable performance (accuracy) on the data it was trained.<br><br>
+
+				Let's say your classifier is performing well (i.e. ~80% accuracy on training set). It is now very tempting to stick with the current model and test it on the test set. However, it is possible that your model 'overfits' on training set. In other words, your model might perform well with known data (training set), but when it encounters a new data set (test set), it might not yield similar  levels of high performance.<br><br>
+
+				To avoid overfitting, it is a common practice to hold out parts of the training data as a validation set. You will use <a href="http://en.wikipedia.org/wiki/Cross-validation_(statistics)#K-fold_cross-validation">K-fold cross-validation</a> to validate your training model. In K-fold cross-validation, the original sample is randomly partitioned into k equal size partitions. Of the k partitions, k - 1 partitions are used as a training set and the remaining partition is used as a validation set. This process is repeated over k folds to generate k results that are averaged to produce a single estimation. You will use the <a href="http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.cross_val_score.html">cross_val_score</a> function in the <a href="http://scikit-learn.org/stable/modules/cross_validation.html">scikit cross-validation module</a>. When experimenting with different models with different parameters and different features, you should cross-validate each model and pick the model that gives the best cross-validation performance.<br><br>
+
+				In order to check which features are most informative for each model, you can call the <code>print_most_informative_features</code> function in <code>util.py</code>. It will print out N most informative features for both negative (on the left) and positive (on the right) labels.
+			</p>
+
+
+			<hr>
+
+
+			<h2>Testing</h2>
+			<p>
+				Once you found the best model, let's first test on a single tweet. Here is one of <a href="https://twitter.com/cloudyminds">Tim Kraska</a>'s tweets: 
+				<pre><a href="https://twitter.com/cloudyminds/status/298864415460163584">Water dripping from 3rd to 1st floor while the firealarm makes it hard to hear anything. BTW this is the 2nd leakage.  Love our new house</a></pre>
+                You should first extract features and transform them using <code>vectorizer</code>. Then you can call <code>classifier.predict</code> to get the predicted label for the given input. To get the prediction probability for each label, you can call <code>predict_proba</code> for NB and LOG, and <code>decision_function</code> for SVM (LinearSVC).<br><br>
+
+				To test on the test set, you can follow the same procedure to get the predicted label and the prediction probability. You can also call the <code>score</code> function to get the accuracy. To attain more comprehensive statistics, you can use <a href="http://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html">classification_report</a> and <a href="http://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html">confusion_matrix</a>. In addition, you can plot the <a href="http://en.wikipedia.org/wiki/Receiver_operating_characteristic">ROC curve</a> using the function <code>plot_roc_curve</code> in <code>util.py</code>. You can't plot the ROC curve for the <a href="http://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html">LinearSVC</a> model since it does not return prediction probabilities (its decision function returns values that are in line with the prediction probabilities but you might need to scale them). You can try with the <a href="http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html">SVC</a> model which provides the <code>predict_proba</code> function, but SVC does not scale well with a large dataset.
+			</p>
+
+
+			<hr>
+
+
+			<h2>Write up</h2>
+			<p>
+				For this project, you must do a project report in HTML, answering all questions below and elaborating on any additional work you did. You should state the problem you are going to solve, the setting, the procedure and the findings, as if you are writing a blog article or research paper. You should not merely answer the questions below.
+				<ol>
+					<li>Describe your tweet processing steps.</li>
+					<li>Describe your feature space. Did you decide to use unigrams, bigrams, or both? What is the size of your feature space?</li>
+					<li>Describe any extra work (i.e. parameter tuning) you did on three classifiers: NB, LOG and SVM. How did it help?</li>
+					<li>For three classifiers (NB, LOG and SVM), report training accuracy, 10-fold cross-validation accuracy, test accuracy, avg precision/recall/f1-score on test, and the confusion matrix on test. Any findings?</li>
+					<li>For three classifiers (NB, LOG and SVM), plot training accuracy, 10-fold cross-validation accuracy and test accuracy together using <a href="http://matplotlib.org/">matplotlib</a>. You can check out <a href="http://matplotlib.org/users/pyplot_tutorial.html">this tutorial</a>. Which classifier overfits the most?</li>
+					<li>Describe the following terms in the context of the assignment: precision, recall, f1-score, confusion matrix (true positive, true negative, false positive, false negative).</li>
+					<li>For NB and LOG, plot the ROC curve and report the area under the curve. What do you learn from the ROC curve?</li>
+					<li>Report top 20 most informative features for all three classifiers. Any findings?</li>
+					<li>Which classifier performs the best? Why?</li>
+					<li>Using the best classifer, print some test tweets that are classified correctly or incorreclty along with their prediction probabilities. Among correctly classified tweets, print 5 tweets with highest predicted probailities. Repeat this for incorrectly classified tweets.</li>
+				</ol>
+			</p>
+
+
+			<hr>
+
+
+			<h2>Handing in</h2>
+			<p>
+				The folder you hand in must contain the following:
+				<ul>
+					<li>README - text file containing anything about the project that you want to tell the TAs.</li>
+					<li>code/ - directory containing all your code for this assignment.</li>
+					<li>html/ - directory containing all your html report for this assignment, including images.</li>
+					<li>html/index.html - write up that contains your results.</li>
+				</ul>
+				Then run: <b>cs1951a_handin assignment3</b>
+			</p>
+
+        <div class="col-md-2"></div>
+    </div>
+
+</body>
+</html>
